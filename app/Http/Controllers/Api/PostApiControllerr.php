@@ -17,15 +17,8 @@ class PostApiControllerr extends Controller
     {
         //get posts 
 
-        $post = Post::create([
-            'title' => 'amy first post',
-            'slug' => 'first-post',
-            'likes' => 1,
-            'content' => 'This is content for post'
-        ]);
-    
-        // return post
-        return $post;
+        $posts = Post::all();
+        return $posts;
     }
 
     /**
@@ -37,6 +30,8 @@ class PostApiControllerr extends Controller
     public function store(Request $request)
     {
         //
+        $post = Post::create($request->all());
+        return $post;
     }
 
     /**
@@ -48,6 +43,8 @@ class PostApiControllerr extends Controller
     public function show($id)
     {
         //
+        $post = Post::find($id);
+        return $post;
     }
 
     /**
@@ -60,6 +57,11 @@ class PostApiControllerr extends Controller
     public function update(Request $request, $id)
     {
         //
+        $post = Post::find($id);
+        $post->update($request->all());
+        return $post;
+
+       
     }
 
     /**
@@ -71,5 +73,7 @@ class PostApiControllerr extends Controller
     public function destroy($id)
     {
         //
+        $post = Post::destroy($id);
+        return $post;
     }
 }
