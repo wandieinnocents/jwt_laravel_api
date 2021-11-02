@@ -22,37 +22,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// AUTHENTICATION API
-
-// create user route
-Route::post('user-create',function (Request $request){
-
-    User::create(
-        [
-            'name' => 'qwandie',
-            'email' => 'qwandieinnocent2@gmail.com',
-            'password' => Hash::make('wandie22')
-            ]
-     );
-});
+// create user
+Route::post('register','App\Http\Controllers\Api\AuthApiController@register');
 
 //login a user
+Route::post('login','App\Http\Controllers\Api\AuthApiController@login');
 
-Route::post('login', function (Request $request){
-
-    $credentials = request()->only(['email','password']);
-
-    $token = auth()->attempt($credentials);
-    return $token;
-
-});
-
-
-//return logged in user
-// user should be logged
+// Return authenticated user
 // Testing with postaman use  Headers ,
 //add key content-type : value : application/json ..
 //add other key : Authorization value : Bearer + token (of logged in user)
+Route::post('login','App\Http\Controllers\Api\AuthApiController@login');
+
 Route::middleware('auth:api')->get('/me',function (){
 
     return response()->json(auth()->user());
