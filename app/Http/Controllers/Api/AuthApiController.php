@@ -12,7 +12,14 @@ class AuthApiController extends Controller
     //register api
     public function register(Request $request){
 
-         $user = User::create($request->all());
+        // generates token when password is hashed
+        //  $user = User::create($request->all());
+
+         User::create([
+             'name' => 'opio',
+             'email' => 'opio@gmail.com',
+             'password' => Hash::make('wandie22')
+         ]);
 
         return response()->json([
             "message" => "User created successfuly"
@@ -25,15 +32,18 @@ class AuthApiController extends Controller
          $token = auth()->attempt($credentials);
 
         //  response
-         return response()->json([
-            'status' => 200,
-            "message" => "User Logged in successfuly",
-            "data" => $credentials,
-            "access_token" => $token,
-            "token_type" => 'bearer',
-            "expires_in" => auth()->factory()->getTTL() * 60
 
-           ]);
+
+           return response()->json([
+            'status' => 200,
+            'message' => 'User Logged in successfully',
+            'data' => [
+                'user' => $credentials,
+                'access_token' =>$token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60
+            ]
+        ], 200);
 
         //  return $token;
 
