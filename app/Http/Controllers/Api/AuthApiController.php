@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthApiController extends Controller
 {
@@ -15,15 +17,52 @@ class AuthApiController extends Controller
         // generates token when password is hashed
         //  $user = User::create($request->all());
 
-         User::create([
-             'name' => 'aopio',
-             'email' => 'aopio@gmail.com',
-             'password' => Hash::make('wandie22')
-         ]);
+        //Validate data
+        $data = $request->only('name', 'email', 'password');
+        $validator = Validator::make($data, [
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6|max:50'
+        ]);
 
+        //Send failed response if request is not valid
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 200);
+        }
+
+        //Request is valid, create new user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
+        ]);
+
+        //User created, return success response
         return response()->json([
-            "message" => "User created successfuly"
-           ],201);
+            'success' => true,
+            'message' => 'User created successfully',
+            'data' => $user
+        ], Response::HTTP_OK);
+
+
+
+
+
+        // WORKING
+
+        //  User::create([
+        //      'name' => 'aopio',
+        //      'email' => 'aopio@gmail.com',
+        //      'password' => Hash::make('wandie22')
+        //  ]);
+
+        // return response()->json([
+        //     "message" => "User created successfuly"
+        //    ],201);
+
+
+
+
     }
 
     // login api
