@@ -61,8 +61,6 @@ class AuthApiController extends Controller
         //    ],201);
 
 
-
-
     }
 
     // login api
