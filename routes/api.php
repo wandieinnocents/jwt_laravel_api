@@ -35,6 +35,9 @@ Route::middleware('auth:api')->get('/me','App\Http\Controllers\Api\AuthApiContro
 // Logout user api
 Route::post('logout','App\Http\Controllers\Api\AuthApiController@logout');
 
+// refresh token
+Route::get('refresh', 'App\Http\Controllers\Api\AuthApiController@refresh');
+
 
 
 // POSTS API ROUTES  - Index,Store,Update,Delete

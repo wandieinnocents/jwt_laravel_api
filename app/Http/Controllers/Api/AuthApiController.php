@@ -102,7 +102,7 @@ class AuthApiController extends Controller
 
  		//Token created, return with success response and jwt token
         return response()->json([
-            'success' => true,
+           'success' => true,
            'status' => 200,
             'message' => 'User Logged in successfully',
             'data' => [
@@ -169,10 +169,37 @@ class AuthApiController extends Controller
     }
 
     // logout user in the system
-    public function logout(){
+    public function logout(Request $request){
 
         auth()->logout();
-       return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out']);
+
+        // /valid credential
+        // $validator = Validator::make($request->only('token'), [
+        //     'token' => 'required'
+        // ]);
+
+        // //Send failed response if request is not valid
+        // if ($validator->fails()) {
+        //     return response()->json(['error' => $validator->messages()], 200);
+        // }
+
+		// //Request is validated, do logout
+        // try {
+        //     JWTAuth::invalidate($request->token);
+
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => 'User has been logged out'
+        //     ]);
+        // } catch (JWTException $exception) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Sorry, user cannot be logged out'
+        //     ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        // }
+
+
     }
 
     // refresh token
