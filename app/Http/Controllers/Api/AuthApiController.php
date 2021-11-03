@@ -16,8 +16,8 @@ class AuthApiController extends Controller
         //  $user = User::create($request->all());
 
          User::create([
-             'name' => 'opio',
-             'email' => 'opio@gmail.com',
+             'name' => 'aopio',
+             'email' => 'aopio@gmail.com',
              'password' => Hash::make('wandie22')
          ]);
 
@@ -28,27 +28,46 @@ class AuthApiController extends Controller
 
     // login api
      public function login(){
-         $credentials = request()->only(['email','password']);
-         $token = auth()->attempt($credentials);
+        $credentials = request(['email', 'password']);
 
-        //  response
+        if (! $token = auth()->attempt($credentials)) {
+            return response()->json([
+                'status' => 400,
+                'error' => 'Sorry!, Invalid login details'
+            ], 200);
+        }
+
+        // check if user exists
+        $is_user_available = auth()->user();
+        if ($is_user_available->exists()) {
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'User Logged in successfully',
+                    'data' => [
+                        'user' => $is_user_available,
+                        'access_token' =>$token,
+                        'token_type' => 'bearer',
+                        'expires_in' => auth()->factory()->getTTL() * 60
+                    ]
+                ], 200);
 
 
-           return response()->json([
-            'status' => 200,
-            'message' => 'User Logged in successfully',
-            'data' => [
-                'user' => $credentials,
-                'access_token' =>$token,
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60
-            ]
-        ], 200);
+        }else{
 
-        //  return $token;
+            return response()->json([
+                'status' => 200,
+                'msg' => 'Sorry User doesnot exist in our records'
+            ], 200);
+        }
+        // end of check if user exists
+
+
+
 
     }
 
+    // return authenticated user
     public function me(){
         // Testing with postaman use  Headers ,
         //add key content-type : value : application/json ..
@@ -58,12 +77,28 @@ class AuthApiController extends Controller
 
     }
 
+    // logout user in the system
     public function logout(){
 
         auth()->logout();
        return response()->json(['message' => 'Successfully logged out']);
     }
 
+    // refresh token
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    // respond with token
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
+    }
 
 
 
