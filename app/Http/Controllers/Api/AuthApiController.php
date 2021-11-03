@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use JWTAuth;
 
 class AuthApiController extends Controller
 {
@@ -64,40 +65,93 @@ class AuthApiController extends Controller
     }
 
     // login api
-     public function login(){
-        $credentials = request(['email', 'password']);
+     public function login(Request $request){
 
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json([
-                'status' => 400,
-                'error' => 'Sorry!, Invalid login details'
-            ], 200);
+
+        $credentials = $request->only('email', 'password');
+
+        //valid credential
+        $validator = Validator::make($credentials, [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6|max:50'
+        ]);
+
+        //Send failed response if request is not valid
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->messages()], 200);
         }
 
-        // check if user exists
-        $is_user_available = auth()->user();
-        if ($is_user_available->exists()) {
-
+        //Request is validated
+        //Crean token
+        try {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json([
-                    'status' => 200,
-                    'message' => 'User Logged in successfully',
-                    'data' => [
-                        'user' => $is_user_available,
-                        'access_token' =>$token,
-                        'token_type' => 'bearer',
-                        'expires_in' => auth()->factory()->getTTL() * 60
-                    ]
-                ], 200);
-
-
-        }else{
-
+                	'success' => false,
+                	'message' => 'Login credentials are invalid.',
+                ], 400);
+            }
+        } catch (JWTException $e) {
+    	return $credentials;
             return response()->json([
-                'status' => 200,
-                'msg' => 'Sorry User doesnot exist in our records'
-            ], 200);
+                	'success' => false,
+                	'message' => 'Could not create token.',
+                ], 500);
         }
-        // end of check if user exists
+
+        $is_user_available = auth()->user();
+
+ 		//Token created, return with success response and jwt token
+        return response()->json([
+            'success' => true,
+           'status' => 200,
+            'message' => 'User Logged in successfully',
+            'data' => [
+            'user' => $is_user_available,
+            'access_token' =>$token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60]
+
+        ]);
+
+
+
+
+
+        // $credentials = request(['email', 'password']);
+
+
+        // if (! $token = auth()->attempt($credentials)) {
+        //     return response()->json([
+        //         'status' => 400,
+        //         'error' => 'Sorry!, Invalid login details'
+        //     ], 200);
+        // }
+
+
+
+        // $is_user_available = auth()->user();
+        // if ($is_user_available->exists()) {
+
+        //         return response()->json([
+        //             'status' => 200,
+        //             'message' => 'User Logged in successfully',
+        //             'data' => [
+        //                 'user' => $is_user_available,
+        //                 'access_token' =>$token,
+        //                 'token_type' => 'bearer',
+        //                 'expires_in' => auth()->factory()->getTTL() * 60
+        //             ]
+        //         ], 200);
+
+
+        // }else{
+
+        //     return response()->json([
+        //         'status' => 200,
+        //         'msg' => 'Sorry User doesnot exist in our records'
+        //     ], 200);
+        // }
+
 
 
 
