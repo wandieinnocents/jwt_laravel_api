@@ -42,6 +42,3 @@ Route::get('refresh', 'App\Http\Controllers\Api\AuthApiController@refresh');
 
 // POSTS API ROUTES  - Index,Store,Update,Delete
 Route::resource('/posts','App\Http\Controllers\Api\PostApiControllerr');
-
-
-
